@@ -34,6 +34,30 @@ jobs:
       - name: Kutubxonalarni o'rnatish
         run: pip install -r requirements.txt
 
+      # GitHub 60 kun repo faoliyati bo'lmasa jadvalni avtomatik O'CHIRADI.
+      # Shuning uchun haftada bir marta mayda belgi qoldiramiz (bot ishlashda qoladi).
+      - name: Jonlilik belgisi (avtomatik o'chirishdan himoya)
+        env:
+          TOKEN: ${{ secrets.GIST_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          last=$(git log -1 --format=%ct -- last_run.txt 2>/dev/null || echo 0)
+          now=$(date +%s)
+          if [ $((now - last)) -gt 518400 ]; then
+            echo "last_run=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > last_run.txt
+            git add last_run.txt
+            git commit -q -m "chore: jonlilik belgisi" || exit 0
+            auth=$(printf "x-access-token:%s" "$TOKEN" | base64 -w0)
+            if git -c http.extraheader="AUTHORIZATION: basic $auth" push origin HEAD:main; then
+              echo "Jonlilik belgisi yuborildi"
+            else
+              echo "Push amalga oshmadi — keyingi safar qayta uriniladi"
+            fi
+          else
+            echo "Belgi yaqinda qoldirilgan — skipt"
+          fi
+
       - name: Botni ishga tushirish
         run: python bot/main.py
         env:
