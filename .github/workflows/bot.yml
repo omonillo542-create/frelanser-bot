@@ -11,10 +11,10 @@ name: Frilans bot (24/7)
 
 on:
   schedule:
-    - cron: "*/5 * * * *"      # har 5 daqiqada — ketma-ket ishlaydi (daqiqlar cheksiz)
-  workflow_dispatch: {}        # qo'lda ishga tushirish
+    - cron: "*/30 * * * *"     # ZAXIRA — zanjir uzilsa 30 daqiqada qayta boshlaydi
+  workflow_dispatch: {}        # qo'lda ishga tushirish + zanjir boshlash
 
-# Ikki ishga tushirish bir vaqtda ishlamasin
+# Ikki ishga tushirish bir vaqtda ishlamasin (409 Conflict oldini oladi)
 concurrency:
   group: bot-runner
   cancel-in-progress: false
@@ -22,7 +22,7 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
 
@@ -66,6 +66,21 @@ jobs:
           GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
           GIST_ID: ${{ secrets.GIST_ID }}
           DB_PATH: bot_data.db
-          MAX_RUNTIME_MINUTES: "6"    # 6 daqiqa ishlaydi (keyingisi zaxirada turadi)
+          MAX_RUNTIME_MINUTES: "10"   # 10 daqiqa ishlaydi, keyin zanjir orqali keyingisi boshlanadi
           GIST_INTERVAL_MINUTES: "5"
           TZ_OFFSET_HOURS: "5"
+
+      # ASOSIY 24/7 MEHANIZMI: run muvaffaqiyatli tugagach o'zi keyingisini
+      # navbatga qo'yadi. GitHub jadvali ishlamasa ham bot uzluksiz qoladi.
+      - name: Keyingi runni navbatga qo'yish (zanjir)
+        if: success()
+        env:
+          TOKEN: ${{ secrets.GIST_TOKEN }}
+        run: |
+          code=$(curl -sS -o /tmp/dispatch.json -w "%{http_code}" -X POST \
+            -H "Authorization: token $TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/omonillo542-create/frelanser-bot/actions/workflows/bot.yml/dispatches \
+            -d '{"ref":"main"}')
+          echo "dispatch javobi: $code"
+          if [ "$code" != "204" ]; then cat /tmp/dispatch.json; fi
