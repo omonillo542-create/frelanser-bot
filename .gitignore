@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Baza fayli (GitHub Gist'da saqlanadi — repoga kerak emas)
+bot_data.db
+bot_data.db-shm
+bot_data.db-wal
+
+# Sirli sozlamalar
+.env
+
+# Tizim
+.DS_Store
+Thumbs.db

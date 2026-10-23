@@ -1,0 +1,47 @@
+# GitHub Actions — butunlay bepul 24/7 ishga tushirish (karta talab qilinmaydi)
+# Och kerak: PUBLIC repo (ommaviy repo'da daqiqlar cheksiz)
+#
+# 1. repo'ni GitHub'ga yuklang
+# 2. Settings → Secrets and variables → Actions → New repository secret:
+#      BOT_TOKEN   -> 88147...:AAE...
+#      ADMIN_ID    -> sizning Telegram ID
+#      GIST_TOKEN  -> GitHub PAT (gist scope)
+# 3. Actions → "Frilans bot" → Run workflow
+name: Frilans bot (24/7)
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"      # har 5 daqiqada — ketma-ket ishlaydi (daqiqlar cheksiz)
+  workflow_dispatch: {}        # qo'lda ishga tushirish
+
+# Ikki ishga tushirish bir vaqtda ishlamasin
+concurrency:
+  group: bot-runner
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Kutubxonalarni o'rnatish
+        run: pip install -r requirements.txt
+
+      - name: Botni ishga tushirish
+        run: python bot/main.py
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          ADMIN_ID: ${{ secrets.ADMIN_ID }}
+          GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
+          GIST_ID: ${{ secrets.GIST_ID }}
+          DB_PATH: bot_data.db
+          MAX_RUNTIME_MINUTES: "6"    # 6 daqiqa ishlaydi (keyingisi zaxirada turadi)
+          GIST_INTERVAL_MINUTES: "5"
+          TZ_OFFSET_HOURS: "5"

@@ -1,0 +1,24 @@
+# Render.com — bepul worker (24/7, uxlamaydi)
+# "New +" → "Web Service" → repo'ni ulang → Environment "Docker" → "Apply"
+# Keyin Environment'da quyidagi qiymatlarni qo'ying.
+services:
+  - type: worker
+    name: frilans-bot
+    runtime: docker
+    plan: free
+    autoDeploy: true
+    envVars:
+      - key: BOT_TOKEN
+        sync: false          # qo'lda kiriting (Render Dashboard → Environment)
+      - key: ADMIN_ID
+        sync: false          # qo'lda kiriting
+      - key: GIST_TOKEN
+        sync: false          # qo'lda kiriting (GitHub PAT — "gist" scope)
+      - key: DB_PATH
+        value: /app/bot_data.db
+      - key: GIST_INTERVAL_MINUTES
+        value: "5"
+      - key: ORDER_TIMEOUT_MINUTES
+        value: "30"
+      - key: TZ_OFFSET_HOURS
+        value: "5"
