@@ -8,6 +8,33 @@ Android'dagi **Pydroid 3**'da ham ishlaydi (og'ir kutubxonalar ishlatilmagan).
 
 ---
 
+## 🌐 SERVERDA ISHLAYDI (24/7)
+
+Bot **GitHub Actions** orqali bepul 24/7 ishlaydi — karta talab qilinmaydi.
+
+| | |
+|---|---|
+| Repo | https://github.com/omonillo542-create/frelanser-bot |
+| Ishlash | Har 5 daqiqada yangi run → 6 daqiqa polling = ketma-ket, uzilishsiz |
+| Loglar | Repo → **Actions** → **Frilans bot (24/7)** → oxirgi run |
+| Baza (SQLite) | GitHub Gist'da nusxalanadi (har 5 daqiqada + yopilganda) |
+| Baza ID | `f92cd64cb8f0b072e1e7103206cfa839` |
+| Maxfiy sozlamalar | Repo → Settings → Secrets and variables → Actions |
+
+**Muhim:** server bilan bir vaqtda kompyutarda ham botni ishga tushirmang —
+Telegram bir vaqtda ikkita `getUpdates`ga ruxsat bermaydi (`409 Conflict`).
+
+**Qo'lda ishga tushirish:** Actions → *Frilans bot (24/7)* → **Run workflow**.
+
+**Kodni yangilash:**
+```bash
+cd frilanser-bot
+git add -A && git commit -m "yangilash" && git push
+# keyin Actions avtomatik yangi kod bilan ishlaydi
+```
+
+---
+
 ## 📂 Fayl tuzilmasi
 
 ```
